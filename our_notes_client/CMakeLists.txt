@@ -22,6 +22,11 @@ qt_add_qml_module(appour_notes_client
     QML_FILES CustomButton.qml
     QML_FILES NoteItem.qml
     SOURCES login.h login.cpp
+    SOURCES globalparameters.h globalparameters.cpp
+    SOURCES workwithdb.h workwithdb.cpp
+    QML_FILES ManageNote.qml
+    QML_FILES LoginForm.qml
+    QML_FILES ListNotesForm.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

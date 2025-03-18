@@ -3,13 +3,13 @@
 NoteManager::NoteManager(QObject *parent)
     : QObject{parent}
 {
+    //connect to server with mysql
     noteModel = NotesListModel::instance();
     db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("127.0.0.1");
-    db.setPort(8383);
-    db.setUserName("root");
-    db.setPassword("rootpassword");
-
+    db.setHostName(GlobalParameters::SqlServerAddr);
+    db.setPort(GlobalParameters::SqlServerPort);
+    db.setUserName(GlobalParameters::SqlServerUser);
+    db.setPassword(GlobalParameters::SqlServerPassword);
     create_db();
 }
 
@@ -21,6 +21,7 @@ NoteManager::~NoteManager()
 
 void NoteManager::manageNote(int id, const QString name, const QString content, QString usersАccess)
 {
+    // -1 is note dont exist, became it need to create
     if(id == -1){
         db.transaction();
 
@@ -38,14 +39,13 @@ void NoteManager::manageNote(int id, const QString name, const QString content, 
         db.commit();
         qDebug() << "Note added successfully!";
 
-        if (!query->exec("SELECT MAX(id) FROM notes")) {
+        if (!query->exec("SELECT MAX(id) FROM notes"))
             qDebug() << "error with request: " << query->lastError().text();
-        }
-        else if (query->next()) {
+        else if (query->next())
             noteModel->addNote({query->value(0).toInt(),name,content});
-        }
 
         delete query;
+    //edit exist note
     }else{
 
         db.transaction();
@@ -107,58 +107,17 @@ void NoteManager::loadDataFromDb(QString userName)
 
 void NoteManager::create_db()
 {
-    if (!db.open()) {
-        qDebug() << "error connection to MySQL:" << db.lastError().text();
-    }
-
-    QSqlQuery query(db);
-    if (!query.exec("CREATE DATABASE IF NOT EXISTS notes_db")) {
-        qDebug() << "error create db:" << query.lastError().text();
-        db.close();
-    }
-
-    db.close();
-    db.setDatabaseName("notes_db");
-    if (!db.open()) {
-        qDebug() << "error connect to 'notes_db':" << db.lastError().text();
-    }
-
-    if (!query.exec("CREATE TABLE IF NOT EXISTS notes ("
+    QString req = "CREATE TABLE IF NOT EXISTS notes ("
                     "id INT AUTO_INCREMENT PRIMARY KEY, "
                     "noteName VARCHAR(150), "
                     "noteContent TEXT,"
-                    "usersAccess TEXT)")) {
-        qDebug() << "error create table 'notes':" << query.lastError().text();
-        db.close();
-    }
+                  "usersAccess TEXT)";
+    QString dbName = "notes_db";
+
+    QSqlDatabase db = QSqlDatabase::database();
+    WorkWithDb::checkAndCreateDbAndTable(db,dbName,req);
 }
 
 int NoteManager::findIdByName(const QString &name) {
-    QSqlDatabase db = QSqlDatabase::database();
 
-    if (!db.isOpen()) {
-        qDebug() << "Database is not open!";
-        return -1;
-    }
-
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT id FROM notes WHERE noteName = :name");
-    query->bindValue(":name", name);
-
-    if (!query->exec()) {
-        qDebug() << "Failed to execute query:" << query->lastError().text();
-        delete query;
-        return -1;
-    }
-
-    if (query->next()) {
-        int id = query->value(0).toInt();
-        delete query;
-        return id;
-    } else {
-        qDebug() << "No record found with name:" << name;
-        delete query;
-        return -1;
-    }
-    delete query;
 }

@@ -7,6 +7,8 @@
 #include <QtCore/QDebug>
 #include <QObject>
 
+#include "globalparameters.h"
+
 class client : public QObject
 {
     Q_OBJECT

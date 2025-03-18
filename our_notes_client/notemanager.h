@@ -10,6 +10,8 @@
 #include <QDebug>
 
 #include "noteslistmodel.h"
+#include "globalparameters.h"
+#include "workwithdb.h"
 
 class NoteManager : public QObject
 {
@@ -17,8 +19,10 @@ class NoteManager : public QObject
 public:
     explicit NoteManager(QObject *parent = nullptr);
     ~NoteManager();
+    //add or edit note
     Q_INVOKABLE void manageNote(int id,const QString name, const QString content, QString usersАccess);
     Q_INVOKABLE void removeNote(int id);
+    //load exist notes from database for current user
     Q_INVOKABLE void loadDataFromDb(QString userName);
 
 protected:

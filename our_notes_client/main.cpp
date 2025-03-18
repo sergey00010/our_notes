@@ -6,6 +6,7 @@
 #include "notemanager.h"
 #include "noteslistmodel.h"
 #include "login.h"
+#include "globalparameters.h"
 
 /*
 created bu Sergey Kuzmenko
@@ -18,6 +19,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/our_notes_client/main.qml"));
+
+    GlobalParameters gl;
 
     client *clientapp = new client();
 

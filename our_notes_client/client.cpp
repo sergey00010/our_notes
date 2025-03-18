@@ -11,7 +11,7 @@ client::~client()
 
 void client::connectToServer()
 {
-    socket.connectToHost("127.0.0.1", 8282);
+    socket.connectToHost(GlobalParameters::ServerAddr, GlobalParameters::ServerPort);
 
     if (socket.waitForConnected()) {
         qDebug() << "Connected to server!";
